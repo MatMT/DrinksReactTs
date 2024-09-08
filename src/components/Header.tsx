@@ -1,16 +1,41 @@
-import { useEffect, useMemo } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 
 export default function Header() {
+  const [searchFilter, setSearchFilter] = useState({
+    ingredient: "",
+    category: "",
+  });
   const { pathname } = useLocation();
   const isHome = useMemo(() => pathname === "/", [pathname]);
+
   const fetchCategories = useAppStore((state) => state.fetchCategories);
   const categories = useAppStore((state) => state.categories);
+  const searchRecipes = useAppStore((state) => state.searchRecipes);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const handleChange = ( e: ChangeEvent<HTMLInputElement | HTMLSelectElement> ) => {
+    setSearchFilter({
+      ...searchFilter,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // TODO: Validar
+    if(Object.values(searchFilter).includes('')){
+      alert('All fields are required!')
+      return;
+    }
+
+    searchRecipes(searchFilter);
+  };
 
   return (
     <header
@@ -43,7 +68,10 @@ export default function Header() {
         </div>
 
         {isHome && (
-          <form className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-10 rounded-lg shadow space-y-6">
+          <form
+            className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-10 rounded-lg shadow space-y-6"
+            onSubmit={handleSubmit}
+          >
             <div className="space-y-4">
               <label
                 htmlFor="ingredient"
@@ -58,6 +86,8 @@ export default function Header() {
                 name="ingredient"
                 className="p-3 w-full rounded-lg focus:outline-none"
                 placeholder="Name or Ingredient. Ex: Vodka, Tequila, Coffe."
+                onChange={handleChange}
+                value={searchFilter.ingredient}
               />
             </div>
 
@@ -70,10 +100,11 @@ export default function Header() {
               </label>
 
               <select
-                id="ingredient"
-                name="ingredient"
+                id="category"
+                name="category"
                 className="p-3 w-full rounded-lg focus:outline-none"
-                defaultValue={""}
+                onChange={handleChange}
+                value={searchFilter.category}
               >
                 <option value="" disabled>
                   -- Select --
@@ -92,7 +123,7 @@ export default function Header() {
 
             <input
               type="submit"
-              value="Search Recipies"
+              value="Search Recipes"
               className="cursor-pointer bg-orange-800 hover:bg-orange-900 text-white font-extrabold w-full rounded-lg uppercase p-2"
             />
           </form>
