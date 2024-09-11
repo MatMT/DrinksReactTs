@@ -8,9 +8,11 @@ import {
 import { Fragment } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { RecipeDetails } from "../types";
+import { Notification } from "../store/notificationSlice";
 
 export default function Modal() {
   const modal = useAppStore((state) => state.modal);
+  const showNotification = useAppStore((state) => state.showNotification);
   const closeModal = useAppStore((state) => state.closeModal);
   const selectedRecipe = useAppStore((state) => state.selectedRecipe);
   const handleClickFavorite = useAppStore((state) => state.handleClickFavorite);
@@ -34,6 +36,14 @@ export default function Modal() {
     }
 
     return ingredients;
+  };
+
+  const handleShowNotification = (id: RecipeDetails["idDrink"]) => {
+    let notification: Pick<Notification, "text" | "error"> = favoriteExists(id)
+      ? { text: "Added to Favorites", error: false }
+      : { text: "Deleted from Favorites", error: true };
+
+    return notification;
   };
 
   return (
@@ -108,6 +118,9 @@ export default function Modal() {
                       onClick={() => {
                         handleClickFavorite(selectedRecipe);
                         closeModal();
+                        showNotification(
+                          handleShowNotification(selectedRecipe.idDrink)
+                        );
                       }}
                     >
                       {favoriteExists(selectedRecipe.idDrink)
