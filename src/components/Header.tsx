@@ -65,6 +65,15 @@ export default function Header() {
             >
               Favorites
             </NavLink>
+
+            <NavLink
+              to="/ask-ai"
+              className={({ isActive }) =>
+                isActive ? "text-orange-500" : "text-slate-800"
+              }
+            >
+              Ask AI
+            </NavLink>
           </nav>
         </div>
 
